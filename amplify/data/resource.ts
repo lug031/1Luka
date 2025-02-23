@@ -7,7 +7,7 @@ const schema = a.schema({
       amount: a.float(),
       description: a.string(),
       category: a.string(),
-      date: a.datetime(),
+      date: a.string(),
       userId: a.string(),
       createdAt: a.timestamp(),
       updatedAt: a.timestamp(),
