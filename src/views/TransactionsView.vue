@@ -1,131 +1,107 @@
 //views/TransactionsView.vue
 <template>
-  <div class="transactions-container">
-    <!-- Resumen de Balance -->
-    <div class="balance-summary">
+  <div class="app-container">
+    <div class="left-panel">
+      <!-- Balance Card -->
       <div class="balance-card">
-        <h2>Balance Total</h2>
-        <div class="amount-display">{{ balance }}</div>
-        <div class="summary-grid">
-          <div class="summary-item income">
-            <span class="label">Ingresos </span>
-            <span class="amount">{{ totalIncome }}</span>
-          </div>
-          <div class="summary-item expenses">
-            <span class="label">Gastos </span>
-            <span class="amount">{{ totalExpenses }}</span>
-          </div>
+        <div class="balance-header">
+          <h2>Balance Total</h2>
+          <div class="balance-amount">{{ balance }}</div>
         </div>
-      </div>
-    </div>
-
-    <!-- Formulario de Transacción -->
-    <div class="transaction-form-container">
-      <form @submit.prevent="handleSubmit" class="transaction-form">
-        <h2>Nueva Transacción</h2>
-
-        <!-- Tipo de Transacción -->
-        <div class="form-group">
-          <div class="type-selector">
-            <button type="button" class="type-button" :class="{ active: form.type === 'INGRESO' }"
-              @click="form.type = 'INGRESO'">
-              <i class="fas fa-plus-circle"></i>
-              Ingreso
-            </button>
-            <button type="button" class="type-button" :class="{ active: form.type === 'GASTO' }"
-              @click="form.type = 'GASTO'">
-              <i class="fas fa-minus-circle"></i>
-              Gasto
-            </button>
-          </div>
-        </div>
-
-        <!-- Monto -->
-        <div class="form-group">
-          <label for="amount">Monto</label>
-          <div class="input-with-icon">
-            <span class="currency-symbol">S/</span>
-            <input id="amount" v-model.number="form.amount" type="number" step="0.01" min="0" required
-              placeholder="0.00" />
-          </div>
-        </div>
-
-        <!-- Categoría -->
-        <div class="form-group">
-          <label for="category">Categoría</label>
-          <select id="category" v-model="form.category" required>
-            <option value="">Seleccionar categoría</option>
-            <option value="Salario">Salario</option>
-            <option value="Inversiones">Inversiones</option>
-            <option value="Alimentación">Alimentación</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Servicios">Servicios</option>
-            <option value="Ocio">Ocio</option>
-            <option value="Otros">Otros</option>
-          </select>
-        </div>
-
-        <!-- Descripción -->
-        <div class="form-group">
-          <label for="description">Descripción</label>
-          <input id="description" v-model="form.description" type="text" required
-            placeholder="Describe la transacción" />
-        </div>
-
-        <!-- Fecha -->
-        <div class="form-group">
-          <label for="date">Fecha</label>
-          <input id="date" v-model="form.date" type="date" required />
-        </div>
-
-        <button type="submit" class="submit-button" :disabled="!isFormValid || loading">
-          {{ loading ? 'Guardando...' : 'Guardar Transacción' }}
-        </button>
-      </form>
-    </div>
-
-    <!-- Lista de Transacciones -->
-    <div class="transactions-list">
-      <h2>Historial de Transacciones</h2>
-
-      <div v-if="loading" class="loading-state">
-        Cargando transacciones...
-      </div>
-
-      <div v-else-if="error" class="error-state">
-        {{ error }}
-      </div>
-
-      <div v-else-if="transactions.length === 0" class="empty-state">
-        No hay transacciones registradas
-      </div>
-
-      <template v-else>
-        <div v-for="transaction in transactions" :key="transaction.id" class="transaction-item"
-          :class="transaction.type.toLowerCase()">
-          <div class="transaction-main">
-            <div class="transaction-info">
-              <span class="transaction-amount">
-                {{ formatCurrency(transaction.amount) }}
-              </span>
-              <span class="transaction-description">
-                {{ transaction.description }}
-              </span>
-            </div>
-            <div class="transaction-details">
-              <span class="transaction-category">
-                {{ transaction.category }}
-              </span>
-              <span class="transaction-date">
-                {{ formatDate(transaction.date) }}
-              </span>
+        <div class="quick-stats">
+          <div class="stat-item positive">
+            <i class="fas fa-arrow-up"></i>
+            <div class="stat-content">
+              <span class="stat-label">Ingresos</span>
+              <span class="stat-value">{{ totalIncome }}</span>
             </div>
           </div>
-          <button class="delete-button" @click="handleDelete(transaction.id)" :disabled="loading">
-            <i class="fas fa-trash"></i>
+          <div class="stat-item negative">
+            <i class="fas fa-arrow-down"></i>
+            <div class="stat-content">
+              <span class="stat-label">Gastos</span>
+              <span class="stat-value">{{ totalExpenses }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Add Transaction -->
+      <div class="quick-add-section">
+        <div class="type-tabs">
+          <button :class="['tab-btn', form.type === 'INGRESO' ? 'active-income' : '']" @click="form.type = 'INGRESO'">
+            <i class="fas fa-plus"></i> Ingreso
+          </button>
+          <button :class="['tab-btn', form.type === 'GASTO' ? 'active-expense' : '']" @click="form.type = 'GASTO'">
+            <i class="fas fa-minus"></i> Gasto
           </button>
         </div>
-      </template>
+
+        <form @submit.prevent="handleSubmit" class="quick-form">
+          <div class="input-group">
+            <span class="currency-symbol">S/</span>
+            <input v-model.number="form.amount" type="number" placeholder="0.00" step="0.01" min="0" required />
+          </div>
+
+          <select v-model="form.category" required>
+            <option value="">Categoría</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+
+          <input v-model="form.description" type="text" placeholder="Descripción breve" required />
+
+          <input v-model="form.date" type="date" required />
+
+          <button type="submit" :class="['submit-btn', form.type === 'INGRESO' ? 'income' : 'expense']"
+            :disabled="!isFormValid || loading">
+            {{ loading ? 'Guardando...' : 'Agregar ' + form.type.toLowerCase() }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Panel - Transactions List -->
+    <div class="right-panel">
+      <div class="transactions-section">
+        <h3>Movimientos Recientes</h3>
+
+        <div v-if="loading" class="status-message">
+          <i class="fas fa-spinner fa-spin"></i> Cargando...
+        </div>
+
+        <div v-else-if="error" class="status-message error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <div v-else-if="transactions.length === 0" class="status-message">
+          <i class="fas fa-inbox"></i> No hay transacciones registradas
+        </div>
+
+        <div v-else class="transactions-list">
+          <TransitionGroup name="list">
+            <div v-for="tx in transactions" :key="tx.id" :class="['transaction-card', tx.type.toLowerCase()]">
+              <div class="tx-main">
+                <div class="tx-icon">
+                  <i :class="['fas', tx.type === 'INGRESO' ? 'fa-arrow-up' : 'fa-arrow-down']"></i>
+                </div>
+                <div class="tx-info">
+                  <div class="tx-primary">
+                    <span class="tx-description">{{ tx.description }}</span>
+                    <span class="tx-amount">{{ formatCurrency(tx.amount) }}</span>
+                  </div>
+                  <div class="tx-secondary">
+                    <span class="tx-category">{{ tx.category }}</span>
+                    <span class="tx-date">{{ formatDate(tx.date) }}</span>
+                  </div>
+                </div>
+              </div>
+              <button class="delete-btn" @click="handleDelete(tx.id)" :disabled="loading" title="Eliminar transacción">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </TransitionGroup>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -133,6 +109,16 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useTransactions } from '@/composables/useTransactions';
+
+const categories = [
+  'Salario',
+  'Inversiones',
+  'Alimentación',
+  'Transporte',
+  'Servicios',
+  'Ocio',
+  'Otros'
+];
 
 const {
   form,
@@ -154,102 +140,125 @@ onMounted(loadTransactions);
 </script>
 
 <style scoped>
-.transactions-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+.app-container {
   display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: minmax(300px, 400px) 1fr;
+  gap: 1.5rem;
+  height: calc(100vh - 2rem);
+  margin: 1rem;
+  overflow: hidden;
 }
 
-.balance-summary {
-  grid-column: 1 / -1;
-}
-
-.balance-card {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.amount-display {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  color: #2d3748;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.summary-item {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background: #f7fafc;
-}
-
-.summary-item.income {
-  border-left: 4px solid #48bb78;
-}
-
-.summary-item.expenses {
-  border-left: 4px solid #f56565;
-}
-
-.transaction-form-container {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.transaction-form {
+.left-panel {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.right-panel {
+  height: 100%;
+  overflow: hidden;
 }
 
-.type-selector {
+.balance-card {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.balance-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.balance-amount {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.quick-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
-.type-button {
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   padding: 1rem;
-  border: 2px solid #e2e8f0;
   border-radius: 0.5rem;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-item i {
+  font-size: 1.25rem;
+}
+
+.positive i {
+  color: #48bb78;
+}
+
+.negative i {
+  color: #f56565;
+}
+
+.quick-add-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.type-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #f7fafc;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.type-button.active {
-  border-color: currentColor;
-  background: #f7fafc;
+.tab-btn:hover {
+  background: #edf2f7;
 }
 
-.type-button.active:first-child {
-  color: #48bb78;
+.active-income {
+  background: #48bb78;
+  color: white;
 }
 
-.type-button.active:last-child {
-  color: #f56565;
+.active-income:hover {
+  background: #38a169;
 }
 
-.input-with-icon {
+.active-expense {
+  background: #f56565;
+  color: white;
+}
+
+.active-expense:hover {
+  background: #e53e3e;
+}
+
+.quick-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
   position: relative;
 }
 
@@ -259,178 +268,241 @@ onMounted(loadTransactions);
   top: 50%;
   transform: translateY(-50%);
   color: #718096;
+  user-select: none;
 }
 
-input[type="number"],
-input[type="text"],
-input[type="date"],
+input,
 select {
+  width: 100%;
   padding: 0.75rem;
-  padding-left: 2rem;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
   font-size: 1rem;
+  background: white;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-.submit-button {
-  background: #4299e1;
-  color: white;
-  padding: 1rem;
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4299e1;
+}
+
+input[type="number"] {
+  padding-left: 2.5rem;
+}
+
+.submit-btn {
+  padding: 0.75rem;
   border: none;
   border-radius: 0.5rem;
+  color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-.submit-button:hover:not(:disabled) {
-  background: #3182ce;
+.submit-btn.income {
+  background: #48bb78;
 }
 
-.submit-button:disabled {
-  background: #cbd5e0;
+.submit-btn.income:hover:not(:disabled) {
+  background: #38a169;
+}
+
+.submit-btn.expense {
+  background: #f56565;
+}
+
+.submit-btn.expense:hover:not(:disabled) {
+  background: #e53e3e;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.transactions-list {
+.transactions-section {
   background: white;
   border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.transaction-item {
+.transactions-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Estilizar la barra de desplazamiento */
+.transactions-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.transactions-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.transaction-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  transition: background 0.2s;
-}
-
-.transaction-item:hover {
+  border-radius: 0.5rem;
   background: #f7fafc;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
 }
 
-.transaction-main {
+.transaction-card:hover {
+  transform: translateX(4px);
+  background: #edf2f7;
+}
+
+.tx-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   flex: 1;
 }
 
-.transaction-info {
+.tx-icon {
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf2f7;
+  transition: all 0.2s;
 }
 
-.transaction-amount {
-  font-weight: 600;
-  font-size: 1.1rem;
+.transaction-card:hover .tx-icon {
+  background: #e2e8f0;
 }
 
-.transaction-item.ingreso .transaction-amount {
+.ingreso .tx-icon {
   color: #48bb78;
 }
 
-.transaction-item.gasto .transaction-amount {
+.gasto .tx-icon {
   color: #f56565;
 }
 
-.transaction-details {
+.tx-info {
+  flex: 1;
+}
+
+.tx-primary {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.tx-description {
+  font-weight: 500;
+}
+
+.tx-amount {
+  font-weight: 600;
+}
+
+.ingreso .tx-amount {
+  color: #48bb78;
+}
+
+.gasto .tx-amount {
+  color: #f56565;
+}
+
+.tx-secondary {
   display: flex;
   gap: 1rem;
-  color: #718096;
   font-size: 0.875rem;
-}
-
-.delete-button {
-  padding: 0.5rem;
-  background: transparent;
-  border: none;
   color: #718096;
+}
+
+.delete-btn {
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: #cbd5e0;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  border-radius: 0.25rem;
 }
 
-.delete-button:hover:not(:disabled) {
+.delete-btn:hover:not(:disabled) {
   color: #f56565;
+  background: #fed7d7;
 }
 
-.loading-state,
-.error-state,
-.empty-state {
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-message {
   text-align: center;
   padding: 2rem;
   color: #718096;
 }
 
-.error-state {
+.status-message.error {
   color: #f56565;
 }
 
-@media (max-width: 640px) {
-  .transactions-container {
-    padding: 1rem;
-  }
+/* Animaciones de lista */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
 
-  .balance-card,
-  .transaction-form-container,
-  .transactions-list {
-    padding: 1.5rem;
-  }
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
 
-  .summary-grid {
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+@media (max-width: 768px) {
+  .app-container {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
   }
 
-  .type-selector {
-    grid-template-columns: 1fr;
+  .right-panel {
+    height: 500px;
+    /* Altura fija en móviles */
   }
 
-  .type-button {
-    padding: 1rem;
+  .transactions-section {
+    height: 100%;
   }
 
-  .input-with-icon {
-    position: relative;
-  }
-
-  .currency-symbol {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #718096;
-  }
-
-  input[type="number"],
-  input[type="text"],
-  input[type="date"],
-  select {
-    width: 100%;
-    padding: 0.75rem;
-    padding-left: 2rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-  }
-
-  .submit-button {
-    padding: 1rem;
-  }
-
-  .transaction-item {
-    padding: 1rem;
-  }
-
-  .transaction-info {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .transaction-details {
-    flex-direction: column;
-    gap: 0.5rem;
+  .quick-stats {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

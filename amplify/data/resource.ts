@@ -9,12 +9,12 @@ const schema = a.schema({
       category: a.string(),
       date: a.string(),
       userId: a.string(),
-      createdAt: a.timestamp(),
-      updatedAt: a.timestamp(),
+      createdAt: a.datetime(),
+      updatedAt: a.datetime(),
     })
     .authorization((allow) => [
-      allow.groups(['admin']).to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      //allow.groups(['admin']).to(['read', 'create', 'update', 'delete']),
+      //allow.authenticated().to(['read', 'create', 'update', 'delete']),
       allow.publicApiKey().to(['read', 'create', 'update', 'delete']),
     ]),
 })

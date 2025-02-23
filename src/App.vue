@@ -1,29 +1,49 @@
-//App.vue
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <header>
-    <nav class="navbar">
-      <RouterLink to="/" class="nav-logo">
-        🪙 1Luka
-      </RouterLink>
+  <div class="app-container">
+    <header>
+      <nav class="navbar">
+        <RouterLink to="/" class="nav-logo">
+          🪙 1Luka
+        </RouterLink>
 
-      <div class="nav-links">
-        <RouterLink to="/">Inicio</RouterLink>
-        <RouterLink to="/transactions">Transacciones</RouterLink>
-        <RouterLink to="/categories">Categorías</RouterLink>
-      </div>
-    </nav>
-  </header>
-
-  <main>
+        <div class="nav-links">
+          <RouterLink to="/">Inicio</RouterLink>
+          <RouterLink to="/transactions">Transacciones</RouterLink>
+          <RouterLink to="/categories">Categorías</RouterLink>
+        </div>
+      </nav>
+    </header>
     <RouterView />
-  </main>
+  </div>
 </template>
 
-<style scoped>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
 .navbar {
   background: white;
   padding: 1rem 2rem;
@@ -63,12 +83,6 @@ import { RouterLink, RouterView } from 'vue-router'
   background: #ebf8ff;
 }
 
-main {
-  padding: 2rem;
-  background: #f7fafc;
-  min-height: calc(100vh - 4rem);
-}
-
 @media (max-width: 640px) {
   .navbar {
     flex-direction: column;
@@ -80,6 +94,31 @@ main {
     width: 100%;
     justify-content: center;
     gap: 1rem;
+  }
+}
+
+/* Ajuste del espaciado cuando el banner está presente */
+.has-maintenance-banner {
+  padding-top: 76px;
+}
+
+@media (max-width: 640px) {
+  .has-maintenance-banner {
+    padding-top: 120px;
+  }
+}
+
+/* Asegura que el banner no tape elementos fixed/sticky */
+.has-maintenance-banner .fixed,
+.has-maintenance-banner .sticky {
+  top: 76px;
+}
+
+@media (max-width: 640px) {
+
+  .has-maintenance-banner .fixed,
+  .has-maintenance-banner .sticky {
+    top: 120px;
   }
 }
 </style>
