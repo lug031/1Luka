@@ -13,11 +13,12 @@ import { RouterView } from 'vue-router';
         <div class="nav-links">
           <RouterLink to="/">Inicio</RouterLink>
           <RouterLink to="/transactions">Transacciones</RouterLink>
-          <RouterLink to="/categories">Categorías</RouterLink>
         </div>
       </nav>
     </header>
-    <RouterView />
+    <main class="main-content">
+      <RouterView />
+    </main>
   </div>
 </template>
 
@@ -35,13 +36,14 @@ html {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
+  background: #f1f5f9;
 }
 
 .app-container {
   width: 100%;
   min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .navbar {
@@ -51,6 +53,11 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .nav-logo {
@@ -83,6 +90,14 @@ html {
   background: #ebf8ff;
 }
 
+/* Contenedor principal para las vistas */
+.main-content {
+  margin-top: 4rem;
+  /* Altura del navbar + espacio extra */
+  flex: 1;
+  padding: 1rem;
+}
+
 @media (max-width: 640px) {
   .navbar {
     flex-direction: column;
@@ -95,30 +110,10 @@ html {
     justify-content: center;
     gap: 1rem;
   }
-}
 
-/* Ajuste del espaciado cuando el banner está presente */
-.has-maintenance-banner {
-  padding-top: 76px;
-}
-
-@media (max-width: 640px) {
-  .has-maintenance-banner {
-    padding-top: 120px;
-  }
-}
-
-/* Asegura que el banner no tape elementos fixed/sticky */
-.has-maintenance-banner .fixed,
-.has-maintenance-banner .sticky {
-  top: 76px;
-}
-
-@media (max-width: 640px) {
-
-  .has-maintenance-banner .fixed,
-  .has-maintenance-banner .sticky {
-    top: 120px;
+  .main-content {
+    margin-top: 7rem;
+    /* Ajustar para navbar más alto en móvil */
   }
 }
 </style>
