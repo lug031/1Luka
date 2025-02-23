@@ -15,13 +15,13 @@ export interface Transaction {
   updatedAt?: string
 }
 
-/*const publicClient = generateClient<Schema>({
+const publicClient = generateClient<Schema>({
   authMode: 'apiKey',
-})*/
-
-const authClient = generateClient<Schema>({
-  authMode: 'userPool',
 })
+
+/*const authClient = generateClient<Schema>({
+  authMode: 'userPool',
+})*/
 
 export const useTransactionStore = defineStore('transaction', () => {
   const transactions = ref<Transaction[]>([])
@@ -48,7 +48,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   const fetchTransactions = async () => {
     loading.value = true
     try {
-      const { data: items } = await authClient.models.Transaction.list({
+      const { data: items } = await publicClient.models.Transaction.list({
         filter: {
           // Aquí puedes agregar filtros si los necesitas
         },
@@ -71,7 +71,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   ) => {
     loading.value = true
     try {
-      const { data: newTransaction } = await authClient.models.Transaction.create(transactionData)
+      const { data: newTransaction } = await publicClient.models.Transaction.create(transactionData)
       await fetchTransactions() // Refetch to ensure consistency
       return newTransaction
     } catch (err) {
@@ -90,7 +90,7 @@ export const useTransactionStore = defineStore('transaction', () => {
     loading.value = true
     try {
       const { ...updateData } = transactionData
-      const { data: updatedTransaction } = await authClient.models.Transaction.update({
+      const { data: updatedTransaction } = await publicClient.models.Transaction.update({
         id,
         ...updateData,
       })
@@ -108,7 +108,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   const deleteTransaction = async (id: string) => {
     loading.value = true
     try {
-      await authClient.models.Transaction.delete({ id })
+      await publicClient.models.Transaction.delete({ id })
       await fetchTransactions() // Refetch to ensure consistency
     } catch (err) {
       error.value = 'Error al eliminar transacción'
