@@ -15,9 +15,9 @@ export interface Transaction {
   updatedAt?: string
 }
 
-const publicClient = generateClient<Schema>({
+/*const publicClient = generateClient<Schema>({
   authMode: 'apiKey',
-})
+})*/
 
 const authClient = generateClient<Schema>({
   authMode: 'userPool',
@@ -48,7 +48,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   const fetchTransactions = async () => {
     loading.value = true
     try {
-      const { data: items } = await publicClient.models.Transaction.list({
+      const { data: items } = await authClient.models.Transaction.list({
         filter: {
           // Aquí puedes agregar filtros si los necesitas
         },
